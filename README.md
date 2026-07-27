@@ -58,7 +58,7 @@ Then, open the ipynb file on the Jetson and run it. The file should stop right b
 - Defines basic data collection functions for lidar
 - Defines data interpretation functions for lidar
 
-#### How the lidar data is handled:
+**How the lidar data is handled:**
 
 The Lidar data is published as a point cloud, or a list of points where each point represents an object that the lidar has been detected. This list is split into several different lists, with each one containing points from a certain area. There can be any amount of these sections, but there is a base number of 7. Each section is about as big as the robot. 
 
@@ -74,7 +74,7 @@ The idea is that by looking at the closest point in each section, we can see whi
 - Defines more advanced sensor/movment related functions used for navigation
 - Creates navigation loop
 
-#### Navigation loop overview
+**Navigation loop overview:**
 
 This idea is then put into practice in the navigation loop. The robot identifies obstacles and moves around them, continuously scanning and rerouting.
 
