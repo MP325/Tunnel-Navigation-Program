@@ -105,7 +105,9 @@ This continues until the robot detects it has reached a dead end, where it then 
 
 #### Dealing with Blind Spots
 
-When looking at this section, there are some notable items that weren't previously mentioned such as the blocked sections list. These are mainly due to the massive limitation that is the Livox Avia LiDAR's enormous 1 meter blind spot. Since it navigates by continuously getting new data (discarding the old), obstacles can be hidden within this blind spot leading to the robot running into them.
+The Livox Avia LiDAR is not suitable for a navigation program like this. The most glaringly obvious reason for this is the massive 1 meter blind spot which prevents the LiDAR from seeing anything close to the robot. This means the navigation program must see the obstacles and move to the proper sections over 1 meter away from them.
+
+However, in order to not set the Jetson aflame with the most intensive program ever, the data is only read from the LiDAR periodically and is not saved. Each time a new measurement is taken, the navigation loop is run completely anew independently of any previous runs. This means that there is a possibility that there is an obstacle that the robot "forgets" is there as the it moves into the blind spot, leading the robot to run into it.
 
 <p align="center"><img width="800" height="450" alt="cantsee" src="https://github.com/user-attachments/assets/a075f681-778c-49ae-a4c9-152895900a4c" /></p>
 
