@@ -1,8 +1,27 @@
 # Tunnel Navigation Program
 
+## Table of Contents
+1. [Purpose](#purpose)
+2. [Installation and Usage](#installation-and-usage)
+    <br>&nbsp;&nbsp;2.1. [System Requirements](#system-requirements)
+    <br>&nbsp;&nbsp;2.2. [Software Prerequisites](#software-prerequisites)
+    <br>&nbsp;&nbsp;2.3. [Hardware Requirements](#hardware-requirements)
+    <br>&nbsp;&nbsp;2.4. [Usage](#usage)
+3. [Basic Code Overview](#basic-code-overview)
+    <br>&nbsp;&nbsp;3.1. [Robot Setup](#robot-setup)
+    <br>&nbsp;&nbsp;3.2. [LiDAR Setup](#lidar-setup)
+       <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.2.1. [LiDAR Data Handling Overview](#lidar-data-handling-overview)
+    <br>&nbsp;&nbsp;3.3. [Navigation](#navigation)
+       <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.3.1. [Navigation Loop Overview](#navigation-loop-overview)
+       <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.3.2. [Dealing with Blind Spots](#dealing-with-blind-spots)
+       <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.3.3. [Blank Sections](#blank-sections)
+       <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.3.4. [Preventing Drift](#preventing-drift)
+
 ## Purpose
 
-The program is designed to allow a Jetson Orin Nano to control a [UGV01](https://www.waveshare.com/wiki/UGV01) to navigate through a tunnel, using a [Livox Avia LiDAR](https://www.livoxtech.com/avia) in order to see obstacles so that it can avoid them. While a different robot or LiDAR can be used, some alteration to the code will be necessary.
+The program is designed to allow a Jetson Orin Nano to control a [UGV01](https://www.waveshare.com/wiki/UGV01) to navigate through a tunnel, using a [Livox Avia LiDAR](https://www.livoxtech.com/avia) in order to see obstacles so that it can avoid them. Two ultrasonic sensors are also placed on the robot, one on each side, to assist with navigation. 
+
+While a different robot or LiDAR can be used, some alteration to the code will be necessary.
 
 The program can either communicate with the UGV01 by connecting the Jetson to the ESP32 through the 40 pin UART, or by connecting to the UGV01's hotspot.
 
@@ -86,10 +105,38 @@ This continues until the robot detects it has reached a dead end, where it then 
 
 When looking at this section, there are some notable items that weren't previously mentioned such as the blocked sections list. These are mainly due to the massive limitation that is the Livox Avia LiDAR's enormous 1 meter blind spot. Since it navigates by continuously getting new data (discarding the old), obstacles can be hidden within this blind spot leading to the robot running into them.
 
-<p align="center"><img width="800" height="450" alt="cantsee" src="https://github.com/user-attachments/assets/a075f681-778c-49ae-a4c9-152895900a4c" /></p>/
+<p align="center"><img width="800" height="450" alt="cantsee" src="https://github.com/user-attachments/assets/a075f681-778c-49ae-a4c9-152895900a4c" /></p>
 
 To solve this, an 2d array is created that stores the location of obstacles, as well as their position in x and y coordinates (where x is forward and y is sideways). This way, we can know the position of obstacles accurately even if the robot moves left or right, and remove them accordingly from the list when we go past them.
 
 This way, we can remember where obstacles are and avoid them.
 
-<img width="800" height="450" alt="avoid" src="https://github.com/user-attachments/assets/8fcf60af-b1b0-4cf8-b1e3-e25521426772" />
+<p align="center"><img width="800" height="450" alt="avoid" src="https://github.com/user-attachments/assets/8fcf60af-b1b0-4cf8-b1e3-e25521426772" /></p>
+
+#### Blank Sections
+
+In the gif showcasing an example navigation loop in the **Navigation Loop Overview** section, it can be seen that walls are seen as obstacles that are 0 meters away. This is because the walls fill the entirety of the blind spot in that section, making it so that no points are read. While this would normally just throw an exception, the robot is programmed to treat these sections with no points as walls.
+
+<p align="center"><img width="800" height="450" alt="idwall" src="https://github.com/user-attachments/assets/01945d75-efc5-4e51-bf4e-c88cdea491d0" /></p>
+
+However, in the case that there is simply no obstacle for as far as the LiDAR can see, the sections will similarly not contain any points.
+
+<p align="center"><img width="800" height="450" alt="nothingtosee" src="https://github.com/user-attachments/assets/b12b3eca-e001-4641-97f7-b51643102e85" /></p>
+
+This is problematic as in these cases, the robot will assume that its path is completely blocked. Therefore, a method must be devised to determine if the section is actually blocked or if there is just nothing that the sensor can see. For this, the ultrasonic sensors on the sides of the robot can be used. Since the ultrasonic can see how far away the walls are, it can identify which section are within the walls.
+
+<p align="center"><img width="800" height="450" alt="idsides" src="https://github.com/user-attachments/assets/4a00d8ec-301c-48a9-a572-13a1f485cddf" /></p>
+
+This ignores a critical detail though. If an obstacle is in the blind spot of the LiDAR, and is large enough to cover the whole section, there will similarly be 0 points logged. Based on the criteria that we set earlier, the robot will identify this blocked section as a clear one and could attempt to move to it. However, this is easily resolvable. Using the blocked section list from earlier, we can easily find out if this is the case.
+
+#### Preventing Drift
+
+This program is extremely dependent on moving in a precise and consistent way. If the robot is moving at an angle, it could drift into an adjacent blocked section from the clear section that it is supposed to be travelling in. This becomes very apparent as it moves to avoid obstacles extremely far back from them, which gives ample time for drift to become a serious issue. This is due to the data from the LiDAR having a lot of variation, making a large margin for error a necessity.
+
+Since the robot will need to travel all the way down long tunnels and back, some sort of measure to prevent drift is necessary.
+
+This is where the ultrasonic sensor comes in handy once again. Through comparing the distance of the left and right walls against previously saved distances as the robot moves forward, we can easily identify if the robot is drifting and correct.
+
+<p align="center"><img width="800" height="450" alt="ultrasonicstraighten" src="https://github.com/user-attachments/assets/954e77e0-1280-4c78-85ec-22149bfaa90e" /></p>
+
+By constantly taking these measurements while moving, the robot can correct as it goes and ensure that it isn't drifting to the side.
