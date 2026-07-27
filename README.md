@@ -56,4 +56,18 @@ The pins for the two ultrasonic sensors are also set here.
 
 Sets the functions for getting the Lidar data.
 
-The Lidar data will be a point cloud, or a list of points where each point represents an object that the lidar has been detected. This list is split into several different lists, with each one containing points from a certain area.
+The Lidar data will be a point cloud, or a list of points where each point represents an object that the lidar has been detected. This list is split into several different lists, with each one containing points from a certain area. There can be any amount of these sections, but there is a base number of 7. Each section is about as big as the robot. 
+
+The closest point in each section is then identified.
+
+<p align="center"><img width="800" height="450" alt="lidar-scanning-gif" src="https://github.com/user-attachments/assets/f663da8e-1923-4900-a3d2-b70f8a768cb9" /></p>
+
+The idea is that by looking at the closest point in each section, we can see which sections have obstacles nearby and how close they are. Since each section is about the size of the robot, we can easily have the robot avoid blockages by just moving to a clear section from a blocked one and simply going forward.
+
+### Navigation Loop
+
+This idea is then put into practice. The robot identifies obstacles and moves around them, continuously scanning and rerouting.
+
+<p align="center"><img width="800" height="450" alt="robot-navigating-gif" src="https://github.com/user-attachments/assets/88c0536a-c104-4d66-892f-547983c761d3" /></p>
+
+This continues until the robot detects it has reached a dead end, where it then turns around and moves until it reaches the point where it started from.
