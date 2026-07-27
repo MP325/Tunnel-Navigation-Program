@@ -127,9 +127,11 @@ However, in the case that there is simply no obstacle for as far as the LiDAR ca
 
 This is problematic as in these cases, the robot will assume that its path is completely blocked. Therefore, a method must be devised to determine if the section is actually blocked or if there is just nothing that the sensor can see. For this, the ultrasonic sensors on the sides of the robot can be used. Since the ultrasonic can see how far away the walls are, it can identify which section are within the walls.
 
-<p align="center"><img width="800" height="450" alt="idsides" src="https://github.com/user-attachments/assets/4a00d8ec-301c-48a9-a572-13a1f485cddf" /></p>
+<p align="center"><img width="800" height="450" alt="canseenow" src="https://github.com/user-attachments/assets/e12aad5c-7af6-4314-bc49-9086697dd21d" /></p>
 
 This ignores a critical detail though. If an obstacle is in the blind spot of the LiDAR, and is large enough to cover the whole section, there will similarly be 0 points logged. Based on the criteria that we set earlier, the robot will identify this blocked section as a clear one and could attempt to move to it. However, this is easily resolvable. Using the blocked section list from earlier, we can easily find out if this is the case.
+
+<p align="center"><img width="800" height="450" alt="rememberobstacle" src="https://github.com/user-attachments/assets/b67ae148-1e2f-40c3-afff-ea16ad073d85" /></p>
 
 #### Preventing Drift
 
