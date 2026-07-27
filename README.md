@@ -123,7 +123,7 @@ In the gif showcasing an example navigation loop in the **Navigation Loop Overvi
 
 However, in the case that there is simply no obstacle for as far as the LiDAR can see, the sections will similarly not contain any points.
 
-<img width="800" height="450" alt="blindrobot" src="https://github.com/user-attachments/assets/930dbe68-fbd4-41f9-bd33-2d011e595ce0" />
+<p align="center"><img width="800" height="450" alt="blindrobot" src="https://github.com/user-attachments/assets/930dbe68-fbd4-41f9-bd33-2d011e595ce0" /></p>
 
 This is problematic as in these cases, the robot will assume that its path is completely blocked. Therefore, a method must be devised to determine if the section is actually blocked or if there is just nothing that the sensor can see. For this, the ultrasonic sensors on the sides of the robot can be used. Since the ultrasonic can see how far away the walls are, it can identify which section are within the walls.
 
