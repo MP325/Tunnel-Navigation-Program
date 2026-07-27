@@ -42,7 +42,7 @@ To use the program, open up the lidar driver and begin publishing point cloud da
 
 Then, open the ipynb file on the Jetson and run it. The file should stop right before the navigation loop runs and wait for a mouse button to be pressed. Alternatively, it can be set to wait for a command to be send to the UGV01 by an external device through its hotspot. The navigation should be started when the robot is ready to go and placed in front of the tunnel, as straight as possible.
 
-## Code Overview
+## Basic Code Overview
 
 ### Robot Setup
 
