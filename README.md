@@ -40,7 +40,7 @@ Before using the program, make sure the lidar and the UGV01 are connected to the
 
 To use the program, open up the lidar driver and begin publishing point cloud data (if using ASIG-X's driver you would enter your workspace and run `ros2 launch livox_ros2_avia livox_lidar_launch.py`).
 
-Then, open the ipynb file on the Jetson and run it. The file should stop right before the navigation loop runs and wait for a mouse button to be pressed. Alternatively, it can be set to wait for a command to be send to the UGV01 by an external device through its hotspot.
+Then, open the ipynb file on the Jetson and run it. The file should stop right before the navigation loop runs and wait for a mouse button to be pressed. Alternatively, it can be set to wait for a command to be send to the UGV01 by an external device through its hotspot. The navigation should be started when the robot is ready to go and placed in front of the tunnel, as straight as possible.
 
 ## Code Overview
 
@@ -70,4 +70,8 @@ This idea is then put into practice. The robot identifies obstacles and moves ar
 
 <p align="center"><img width="800" height="450" alt="robot-navigating-gif" src="https://github.com/user-attachments/assets/88c0536a-c104-4d66-892f-547983c761d3" /></p>
 
-This continues until the robot detects it has reached a dead end, where it then turns around and moves until it reaches the point where it started from.
+This continues until the robot detects it has reached a dead end, where it then turns around and moves until it reaches the point where it started from. The robot also uses various sensors like the ultrasonic and motor encoders in an attempt to negate drift.
+
+This section contains the navigation loop, alongside the more advanced movement and sensor related functions that it is built on. The weights and different parameters of navigation can be adjusted in the navigation variables tab.
+
+When looking at this section, there are some notable items that weren't previously mentioned such as the blocked sections list. These are mainly due to the massive limitation that is the Livox Avia lidar's enormous 1 meter blind spot, which led to quite a few workarounds being added.
