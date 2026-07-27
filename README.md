@@ -1,6 +1,6 @@
 # Tunnel Navigation Program
 
-## Usage
+## Purpose
 
 The program is designed to allow a Jetson Orin Nano to control a [UGV01](https://www.waveshare.com/wiki/UGV01) to navigate through a tunnel, using a [Livox Avia LiDAR](https://www.livoxtech.com/avia) in order to see obstacles so that it can avoid them. While a different robot or LiDAR can be used, some alteration to the code will be necessary.
 
@@ -12,7 +12,7 @@ Data can be recorded as the UGV01 moves throughout the tunnel, allowing for a sc
 
 ### System Requirements
 
-- **ROS 2 Humble** installed on your system.
+- **[ROS 2 Humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html)** installed on your system.
 - **Python 3.x** with `pip` configured.
 
 ### Software Prerequisites
@@ -58,13 +58,13 @@ Then, open the ipynb file on the Jetson and run it. The file should stop right b
 - Defines basic data collection functions for LiDAR
 - Defines data interpretation functions for LiDAR
 
-**How the LiDAR data is handled:**
+#### LiDAR Data Handling Overview
 
 The LiDAR data is published as a point cloud, or a list of points where each point represents an object that the LiDAR has been detected. This list is split into several different lists, with each one containing points from a certain area. There can be any amount of these sections, but there is a base number of 7. Each section is about as big as the robot. 
 
 The closest point in each section is then identified.
 
-<p align="center"><img width="800" height="450" alt="LiDAR-scanning-gif" src="https://github.com/user-attachments/assets/f663da8e-1923-4900-a3d2-b70f8a768cb9" /></p>
+<p align="center"><img width="800" height="450" alt="scanning" src="https://github.com/user-attachments/assets/f663da8e-1923-4900-a3d2-b70f8a768cb9" /></p>
 
 The idea is that by looking at the closest point in each section, we can see which sections have obstacles nearby and how close they are. Since each section is about the size of the robot, we can easily have the robot avoid blockages by just moving to a clear section from a blocked one and simply going forward.
 
@@ -74,12 +74,22 @@ The idea is that by looking at the closest point in each section, we can see whi
 - Defines more advanced sensor/movment related functions used for navigation
 - Creates navigation loop
 
-**Navigation loop overview:**
+#### Navigation Loop Overview
 
 This idea is then put into practice in the navigation loop. The robot identifies obstacles and moves around them, continuously scanning and rerouting.
 
-<p align="center"><img width="800" height="450" alt="robot-navigating-gif" src="https://github.com/user-attachments/assets/88c0536a-c104-4d66-892f-547983c761d3" /></p>
+<p align="center"><img width="800" height="450" alt="navigating" src="https://github.com/user-attachments/assets/88c0536a-c104-4d66-892f-547983c761d3" /></p>
 
 This continues until the robot detects it has reached a dead end, where it then turns around and navigates until it reaches the point where it started from. The robot also uses various sensors like the ultrasonic and motor encoders in an attempt to negate drift.
 
-When looking at this section, there are some notable items that weren't previously mentioned such as the blocked sections list. These are mainly due to the massive limitation that is the Livox Avia LiDAR's enormous 1 meter blind spot, which led to quite a few workarounds being added.
+#### Dealing with Blind Spots
+
+When looking at this section, there are some notable items that weren't previously mentioned such as the blocked sections list. These are mainly due to the massive limitation that is the Livox Avia LiDAR's enormous 1 meter blind spot. Since it navigates by continuously getting new data (discarding the old), obstacles can be hidden within this blind spot leading to the robot running into them.
+
+<p align="center"><img width="800" height="450" alt="cantsee" src="https://github.com/user-attachments/assets/a075f681-778c-49ae-a4c9-152895900a4c" /></p>/
+
+To solve this, an 2d array is created that stores the location of obstacles, as well as their position in x and y coordinates (where x is forward and y is sideways). This way, we can know the position of obstacles accurately even if the robot moves left or right, and remove them accordingly from the list when we go past them.
+
+This way, we can remember where obstacles are and avoid them.
+
+<img width="800" height="450" alt="avoid" src="https://github.com/user-attachments/assets/8fcf60af-b1b0-4cf8-b1e3-e25521426772" />
