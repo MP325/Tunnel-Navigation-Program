@@ -55,11 +55,13 @@ To use the program, the following sensors need to be affixed to the robot:
 
 ### Usage
 
-Before using the program, make sure the LiDAR and the UGV01 are connected to the Jetson.
+Before using the program, ensure the LiDAR and the UGV01 are connected to the Jetson (the UGV01 does not need to be connected if using the hotspot to connect).
 
 To use the program, open up the LiDAR driver and begin publishing point cloud data (if using ASIG-X's driver you would enter your workspace and run `ros2 launch livox_ros2_avia livox_LiDAR_launch.py`).
 
-Then, open the ipynb file on the Jetson and run it. The file should stop right before the navigation loop runs and wait for a mouse button to be pressed. Alternatively, it can be set to wait for a command to be send to the UGV01 by an external device through its hotspot. The navigation should be started when the robot is ready to go and placed in front of the tunnel, as straight as possible.
+Then, open the ipynb file on the Jetson and run all of the code. The program should stop right before the navigation loop and wait for a mouse button to be pressed. Alternatively, it can be set to wait for a command to be send to the UGV01 by an external device through its hotspot. Once the command is recieved, the robot will immediately begin navigating through the tunnel.
+
+Make sure to place the robot in the center of the entrance, facing as straight forward as possible.
 
 ## Basic Code Overview
 
