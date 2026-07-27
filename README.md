@@ -70,7 +70,7 @@ This idea is then put into practice. The robot identifies obstacles and moves ar
 
 <p align="center"><img width="800" height="450" alt="robot-navigating-gif" src="https://github.com/user-attachments/assets/88c0536a-c104-4d66-892f-547983c761d3" /></p>
 
-This continues until the robot detects it has reached a dead end, where it then turns around and moves until it reaches the point where it started from. The robot also uses various sensors like the ultrasonic and motor encoders in an attempt to negate drift.
+This continues until the robot detects it has reached a dead end, where it then turns around and navigates until it reaches the point where it started from. The robot also uses various sensors like the ultrasonic and motor encoders in an attempt to negate drift.
 
 This section contains the navigation loop, alongside the more advanced movement and sensor related functions that it is built on. The weights and different parameters of navigation can be adjusted in the navigation variables tab.
 
