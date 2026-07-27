@@ -2,7 +2,7 @@
 
 ## Usage
 
-The program is designed to allow a Jetson Orin Nano to control a UGV01 to navigate through a tunnel, using a Livox Avia lidar in order to see obstacles so that it can avoid them. While a different robot or lidar can be used, some alteration will be necessary.
+The program is designed to allow a Jetson Orin Nano to control a [UGV01](https://www.waveshare.com/wiki/UGV01) to navigate through a tunnel, using a [Livox Avia lidar](https://www.livoxtech.com/avia) in order to see obstacles so that it can avoid them. While a different robot or lidar can be used, some alteration to the code will be necessary.
 
 The program can either communicate with the UGV01 by connecting the Jetson to the ESP32 through the 40 pin UART, or by connecting to the UGV01's hotspot.
 
@@ -31,8 +31,8 @@ You can run this command to install all of the dependencies with `pip`:
 
 To use the program, the following sensors need to be affixed to the robot:
 
-- [Livox AVIA LiDAR](https://www.livoxtech.com/avia)
-- Two ultrasonic sensors, one on each side of the robot (connected to the 40 pin UART, the trig and echo pins should be 29 and 31 for the first sensor and 33 and 32 for the second)
+- One **Livox AVIA LiDAR**, which should be mounted on the front of the robot
+- Two **ultrasonic sensors**, one on each side of the robot (connected to the 40 pin UART, the trig and echo pins should be 29 and 31 for the first sensor and 33 and 32 for the second)
 
 ### Usage
 
@@ -46,17 +46,21 @@ Then, open the ipynb file on the Jetson and run it. The file should stop right b
 
 ### Robot Setup
 
-Lets the Jetson know whether to communicate with the robot through the serial port (if connected through 40 pin UART) or through the web interface (if connected through hotspot).
-
-All sensor related function and basic movement functions are defined here.
-
-The pins for the two ultrasonic sensors are also set here.
+- Lets the Jetson know whether to communicate with the robot through the serial port (if connected through 40 pin UART) or through the web interface (if connected through hotspot)
+- Sets pins for ultrasonic sensor
+- Defines basic sensor related functions
+- Sets up GPIO for ultrasonic and defines ultrasonic related function
+- Defines basic movement functions
 
 ### Lidar Setup
 
-Sets the functions for getting the Lidar data.
+- Sets up rclpy node to read lidar data
+- Defines basic data collection functions for lidar
+- Defines data interpretation functions for lidar
 
-The Lidar data will be a point cloud, or a list of points where each point represents an object that the lidar has been detected. This list is split into several different lists, with each one containing points from a certain area. There can be any amount of these sections, but there is a base number of 7. Each section is about as big as the robot. 
+#### How the lidar data is handled:
+
+The Lidar data is published as a point cloud, or a list of points where each point represents an object that the lidar has been detected. This list is split into several different lists, with each one containing points from a certain area. There can be any amount of these sections, but there is a base number of 7. Each section is about as big as the robot. 
 
 The closest point in each section is then identified.
 
@@ -64,14 +68,18 @@ The closest point in each section is then identified.
 
 The idea is that by looking at the closest point in each section, we can see which sections have obstacles nearby and how close they are. Since each section is about the size of the robot, we can easily have the robot avoid blockages by just moving to a clear section from a blocked one and simply going forward.
 
-### Navigation Loop
+### Navigation
 
-This idea is then put into practice. The robot identifies obstacles and moves around them, continuously scanning and rerouting.
+- Defines weights and navigation parameters
+- Defines more advanced sensor/movment related functions used for navigation
+- Creates navigation loop
+
+#### Navigation loop overview
+
+This idea is then put into practice in the navigation loop. The robot identifies obstacles and moves around them, continuously scanning and rerouting.
 
 <p align="center"><img width="800" height="450" alt="robot-navigating-gif" src="https://github.com/user-attachments/assets/88c0536a-c104-4d66-892f-547983c761d3" /></p>
 
 This continues until the robot detects it has reached a dead end, where it then turns around and navigates until it reaches the point where it started from. The robot also uses various sensors like the ultrasonic and motor encoders in an attempt to negate drift.
-
-This section contains the navigation loop, alongside the more advanced movement and sensor related functions that it is built on. The weights and different parameters of navigation can be adjusted in the navigation variables tab.
 
 When looking at this section, there are some notable items that weren't previously mentioned such as the blocked sections list. These are mainly due to the massive limitation that is the Livox Avia lidar's enormous 1 meter blind spot, which led to quite a few workarounds being added.
