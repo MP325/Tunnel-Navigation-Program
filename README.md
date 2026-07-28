@@ -97,7 +97,7 @@ The idea is that by looking at the closest point in each section, we can see whi
 
 #### Navigation Loop Overview
 
-This idea is then put into practice in the navigation loop. The robot identifies obstacles and moves around them, continuously scanning and rerouting.
+The sections created with the LiDAR data are quickly put to use the navigation loop. The robot identifies obstacles and moves around them, continuously scanning and rerouting.
 
 <p align="center"><img width="800" height="450" alt="navigating" src="https://github.com/user-attachments/assets/88c0536a-c104-4d66-892f-547983c761d3" /></p>
 
@@ -107,7 +107,7 @@ This continues until the robot detects it has reached a dead end, where it then 
 
 The Livox Avia LiDAR is not suitable for a navigation program like this. The most glaringly obvious reason for this is the massive 1 meter blind spot which prevents the LiDAR from seeing anything close to the robot. This means the navigation program must see the obstacles and move to the proper sections over 1 meter away from them.
 
-However, in order to not set the Jetson aflame with the most intensive program ever, the data is only read from the LiDAR periodically and is not saved. Each time a new measurement is taken, the navigation loop is run completely anew independently of any previous runs. This means that there is a possibility that there is an obstacle that the robot "forgets" is there as the it moves into the blind spot, leading the robot to run into it.
+However, in order to not set the Jetson aflame with the most intensive program ever, the data is only read from the LiDAR periodically and is not saved. Each time a new measurement is taken, the navigation loop is run completely anew independently of any previous runs. This means that there is a possibility that there is an obstacle that the robot "forgets" is there as it moves into the blind spot, leading the robot to run into the obstacle.
 
 <p align="center"><img width="800" height="450" alt="cantsee" src="https://github.com/user-attachments/assets/a075f681-778c-49ae-a4c9-152895900a4c" /></p>
 
