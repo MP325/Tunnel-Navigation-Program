@@ -8,14 +8,17 @@
     <br>&nbsp;&nbsp;2.3. [Hardware Requirements](#hardware-requirements)
     <br>&nbsp;&nbsp;2.4. [Usage](#usage)
 3. [Basic Code Overview](#basic-code-overview)
-    <br>&nbsp;&nbsp;3.1. [Robot Setup](#robot-setup)
-    <br>&nbsp;&nbsp;3.2. [LiDAR Setup](#lidar-setup)
-       <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.2.1. [LiDAR Data Handling Overview](#lidar-data-handling-overview)
-    <br>&nbsp;&nbsp;3.3. [Navigation](#navigation)
-       <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.3.1. [Navigation Loop Overview](#navigation-loop-overview)
-       <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.3.2. [Dealing with Blind Spots](#dealing-with-blind-spots)
-       <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.3.3. [Blank Sections](#blank-sections)
-       <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.3.4. [Preventing Drift](#preventing-drift)
+    <br>&nbsp;&nbsp;3.1. [Jetson Setup](#jetson-setup)
+    <br>&nbsp;&nbsp;3.2. [Robot Setup](#robot-setup)
+    <br>&nbsp;&nbsp;3.3. [LiDAR Setup](#lidar-setup)
+       <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.3.1. [LiDAR Data Handling Overview](#lidar-data-handling-overview)
+    <br>&nbsp;&nbsp;3.4. [Navigation](#navigation)
+       <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.4.1. [Navigation Loop Overview](#navigation-loop-overview)
+       <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.4.2. [Dealing with Blind Spots](#dealing-with-blind-spots)
+       <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.4.3. [Blank Sections](#blank-sections)
+       <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.4.4. [Preventing Drift](#preventing-drift)
+4. [Troubleshooting](#troubleshooting)
+    <br>&nbsp;&nbsp;4.1. [LiDAR Issues](#lidar-issues)
 
 ## Purpose
 
@@ -39,7 +42,7 @@ Data can be recorded as the UGV01 moves throughout the tunnel, allowing for a sc
 To use the program, the following must be installed:
 
 - A driver that can read and publish point cloud data in the pointcloud2 format (for the Avia **[ASIG-X's driver](https://github.com/ASIG-X/livox_ros2_avia)** works very well)
-- **[UGV Jetson](https://github.com/waveshareteam/ugv_jetson/tree/main)** (in the case that the Jetson Orin Nano is being connected to the UGV01 through the 40 pin UART)
+- **[UGV Jetson](https://github.com/waveshareteam/ugv_jetson/tree/main)**
 - **Jupyter** (comes with UGV Jetson)
 
 You can run this command to install all of the dependencies with `pip`:
@@ -57,13 +60,24 @@ To use the program, the following sensors need to be affixed to the robot:
 
 Before using the program, ensure the LiDAR and the UGV01 are connected to the Jetson (the UGV01 does not need to be connected if using the hotspot to connect).
 
-To use the program, open up the LiDAR driver and begin publishing point cloud data (if using ASIG-X's driver you would enter your workspace and run `ros2 launch livox_ros2_avia livox_LiDAR_launch.py`).
+To use the program, open up the LiDAR driver and begin publishing point cloud data (ex: if using ASIG-X's driver you would enter your workspace in another terminal and run `ros2 launch livox_ros2_avia livox_lidar_launch.py`). If you are using ASIG-X's driver, skip this step as it will run automatically when the code is started. If opening the driver automatically, make sure to click your mouse after the driver is completely started as the Jetson will wait for an input so that the code doesn't run before the driver is ready.
 
-Then, open the ipynb file on the Jetson and run all of the code. The program should stop right before the navigation loop and wait for a mouse button to be pressed. Alternatively, it can be set to wait for a command to be send to the UGV01 by an external device through its hotspot. Once the command is recieved, the robot will immediately begin navigating through the tunnel.
+Enter the ugv_jetson directory (`cd ugv_jetson`) and run the file from in there (either using `jupyter lab` or `jupyter notebook` to open the file and then run all cells). Make sure the file is placed in the ugv_jetson folder beforehand which should be created after installing all the software prerequisites.
+
+The program should stop right before the navigation loop and wait for a mouse button to be pressed. Alternatively, it can be set to wait for a command to be send to the UGV01 by an external device through its hotspot. Once the command is recieved, the robot will immediately begin navigating through the tunnel.
 
 Make sure to place the robot in the center of the entrance, facing as straight forward as possible.
 
 ## Basic Code Overview
+
+### Jetson Setup
+
+- Defines wait for input function
+- Opens the lidar driver automatically
+
+If using the livox_ros2_avia driver from ASIG-X previously mentioned, no change to the code is needed. However, if not using this driver, setupAvia MUST be set to false and whatever LiDAR driver you are using must be started manually.
+
+Note that the program will wait for an input to indicate that the driver has finished starting before continuing.
 
 ### Robot Setup
 
@@ -146,3 +160,21 @@ This is where the ultrasonic sensor comes in handy once again. Through comparing
 <p align="center"><img width="800" height="450" alt="ultrasonicstraighten" src="https://github.com/user-attachments/assets/954e77e0-1280-4c78-85ec-22149bfaa90e" /></p>
 
 By constantly taking these measurements while moving, the robot can correct as it goes and ensure that it isn't drifting to the side.
+
+## Troubleshooting
+
+### LiDAR Issues
+
+#### LiDAR data not publishing properly
+
+1. Ensure the driver is working properly (can use rviz to see output)
+2. Check to see if the IP of the Jetson is matching the IP of the LiDAR (sometimes needed to properly recieve data)
+3. Check the name of the node (driver might be publishing data in a node named differently than the one being read)
+4. Check the data format (must be pointcloud2 data)
+5. Check LiDAR's blind spot size, it's possible an obstacle inside the blind spot is preventing LiDAR from seeing anything.
+
+#### LiDAR is seeing floor/ceiling
+
+Adjust the zSensitivity variable, which determines how high above and below the LiDAR data is taken (variable is in cm)
+
+Similarly the ySensitivity can be adjusted if the sections are too big/small
