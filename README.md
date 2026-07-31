@@ -19,6 +19,7 @@
        <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.4.4. [Preventing Drift](#preventing-drift)
 4. [Troubleshooting](#troubleshooting)
     <br>&nbsp;&nbsp;4.1. [LiDAR Issues](#lidar-issues)
+    <br>&nbsp;&nbsp;4.2. [RCLPY Issues](#rclpy-issues)
 
 ## Purpose
 
@@ -168,13 +169,19 @@ By constantly taking these measurements while moving, the robot can correct as i
 #### LiDAR data not publishing properly
 
 1. Ensure the driver is working properly (can use rviz to see output)
-2. Check to see if the IP of the Jetson is matching the IP of the LiDAR (sometimes needed to properly recieve data)
-3. Check the name of the node (driver might be publishing data in a node named differently than the one being read)
-4. Check the data format (must be pointcloud2 data)
-5. Check LiDAR's blind spot size, it's possible an obstacle inside the blind spot is preventing LiDAR from seeing anything.
+2. Ensure driver is properly sourced if not working properly
+3. Check to see if the IP of the Jetson is matching the IP of the LiDAR (sometimes needed to properly recieve data)
+4. Check the name of the node (driver might be publishing data in a node named differently than the one being read)
+5. Check the data format (must be pointcloud2 data)
+6. Check LiDAR's blind spot size, it's possible an obstacle inside the blind spot is preventing LiDAR from seeing anything.
 
 #### LiDAR is seeing floor/ceiling
 
 Adjust the zSensitivity variable, which determines how high above and below the LiDAR data is taken (variable is in cm)
 
 Similarly the ySensitivity can be adjusted if the sections are too big/small
+
+### RCLPY Issues
+
+1. Check that ROS2 Humble is properly installed
+2. Check that ROS2 Humble is properly sourced
