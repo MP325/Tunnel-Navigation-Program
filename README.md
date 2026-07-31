@@ -1,12 +1,11 @@
-# Tunnel Navigation Program
-
 ## Table of Contents
 1. [Purpose](#purpose)
 2. [Installation and Usage](#installation-and-usage)
     <br>&nbsp;&nbsp;2.1. [System Requirements](#system-requirements)
     <br>&nbsp;&nbsp;2.2. [Software Prerequisites](#software-prerequisites)
     <br>&nbsp;&nbsp;2.3. [Hardware Requirements](#hardware-requirements)
-    <br>&nbsp;&nbsp;2.4. [Usage](#usage)
+    <br>&nbsp;&nbsp;2.4. [Example Setup](#example-setup)
+    <br>&nbsp;&nbsp;2.5. [Usage](#usage)
 3. [Basic Code Overview](#basic-code-overview)
     <br>&nbsp;&nbsp;3.1. [Jetson Setup](#jetson-setup)
     <br>&nbsp;&nbsp;3.2. [Robot Setup](#robot-setup)
@@ -58,6 +57,15 @@ To use the program, the following sensors need to be affixed to the robot:
 
 - One **Livox AVIA LiDAR**, which should be mounted on the front of the robot
 - Two **ultrasonic sensors**, one on each side of the robot (connected to the 40 pin UART, the trig and echo pins should be 29 and 31 for the first sensor and 33 and 32 for the second)
+
+### Example Setup
+
+<p align="center">
+    <img width="400" height="420" alt="image" src="https://github.com/user-attachments/assets/e0371ffd-7759-4f67-b170-e576016e6b36" />
+    <img width="340" height="420" alt="image" src="https://github.com/user-attachments/assets/454dcc8e-5061-4438-b2bb-4e76d06f0330" />
+    <img width="340" height="420" alt="image" src="https://github.com/user-attachments/assets/77241d7a-47f2-4718-a256-cbde2b523b70" />
+    <img width="400" height="420" alt="image" src="https://github.com/user-attachments/assets/df008b17-49a8-4a88-9859-e4f0d6a86627" />
+</p>
 
 ### Usage
 
@@ -232,3 +240,11 @@ It's possible that the robot will move too much or too little based on things li
 Small differences can lead to the turn being too much or too little.
 
 Adjust the `turn()` function accordingly, editing the length of the `time.sleep()` within it to customize how much the robot turns. Small inconsistencies shouldn't be too problematic though due to the anti drifting measures put in place. Editing the function to make use of the IMU can allow for much greater accuracy but I couldn't personally get it to work on the UGV01 that I used.
+
+#### Moving too far/little forward
+
+Check that the motor PID is set properly.
+
+For the UGV01, the js command for setting these should be `{"T":2,"P":200,"I":2500,"D":0,"L":255}`
+
+This can be sent to the robot through `sendCmd({"T":2,"P":200,"I":2500,"D":0,"L":255})`
