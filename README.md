@@ -19,8 +19,9 @@
        <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.4.4. [Preventing Drift](#preventing-drift)
 4. [Troubleshooting](#troubleshooting)
     <br>&nbsp;&nbsp;4.1. [LiDAR Issues](#lidar-issues)
-    <br>&nbsp;&nbsp;4.2. [RCLPY Issues](#rclpy-issues)
+    <br>&nbsp;&nbsp;4.2. [Import Issues](#import-issues)
     <br>&nbsp;&nbsp;4.3. [GPIO Issues](#gpio-issues)
+    <br>&nbsp;&nbsp;4.4. [Movement Issues](#movement-issues)
 
 ## Purpose
 
@@ -60,15 +61,15 @@ To use the program, the following sensors need to be affixed to the robot:
 
 ### Usage
 
-Before using the program, ensure the LiDAR and the UGV01 are connected to the Jetson (the UGV01 does not need to be connected if using the hotspot to connect).
+1. Connect LiDAR through ethernet and UGV01 through wifi/UART
+2. Launch LiDAR driver to publish pointcloud2 data (if using auto launch in the **Jetson Setup** section this can be skipped)
+3. `cd ugv_jetson` (should be auto created when installing UGV Jetson)
+4. Open the ipynb file with `jupyter lab` or `jupyter notebook` (should be in the ugv_jetson folder)
+5. Run all cells
+6. Click the screen once with a mouse when LiDAR driver is completely started if using the auto launch in the **Jetson Setup** section
+7. Click again when the robot is placed in position and is ready to navigate (ensure it is facing as straight as possible in the center of the tunnel)
 
-To use the program, open up the LiDAR driver and begin publishing point cloud data (ex: if using ASIG-X's driver you would enter your workspace in another terminal and run `ros2 launch livox_ros2_avia livox_lidar_launch.py`). If you are using ASIG-X's driver, skip this step as it will run automatically when the code is started. If opening the driver automatically, make sure to click your mouse after the driver is completely started as the Jetson will wait for an input so that the code doesn't run before the driver is ready.
-
-Enter the ugv_jetson directory (`cd ugv_jetson`) and run the file from in there (either using `jupyter lab` or `jupyter notebook` to open the file and then run all cells). Make sure the file is placed in the ugv_jetson folder beforehand which should be created after installing all the software prerequisites.
-
-The program should stop right before the navigation loop and wait for a mouse button to be pressed. Alternatively, it can be set to wait for a command to be send to the UGV01 by an external device through its hotspot. Once the command is recieved, the robot will immediately begin navigating through the tunnel.
-
-Make sure to place the robot in the center of the entrance, facing as straight forward as possible.
+Note that while a wireless mouse should be used for the clicking, it can be set so that it will wait for a movement command to be sent through the UGV's hotspot instead (only for the click in step 7 though). This is because while the step 6 click can be done by a wired mouse, 7 must be done with a wireless one because the robot will immediately begin moving once the signal is sent. 
 
 ## Basic Code Overview
 
@@ -169,12 +170,25 @@ By constantly taking these measurements while moving, the robot can correct as i
 
 #### LiDAR data not publishing properly
 
+**Possibility 1: Issue with driver**
+
 1. Ensure the driver is working properly (can use rviz to see output)
 2. Ensure driver is properly sourced if not working properly
-3. Check to see if the IP of the Jetson is matching the IP of the LiDAR (sometimes needed to properly recieve data)
-4. Check the name of the node (driver might be publishing data in a node named differently than the one being read)
-5. Check the data format (must be pointcloud2 data)
-6. Check LiDAR's blind spot size, it's possible an obstacle inside the blind spot is preventing LiDAR from seeing anything.
+3. Check to see if the IP of the Jetson is matching the IP of the LiDAR (sometimes needed to properly receive data)
+
+**Possibility 2: Incorrect node name**
+
+Check the name of the node (driver might be publishing data in a node named differently than the one being read). This can be done by running `ros2 topic list`
+
+**Possibility 3: Wrong code format**
+
+Check the data format (must be pointcloud2 data)
+
+**Possibility 4: Blockage**
+
+1. Check LiDAR's blind spot size, it's possible an obstacle inside the blind spot is preventing LiDAR from seeing anything.
+2. Check ySensitivity and zSensitivity, if they are too small it's possible the LiDAR will be unable to send any data
+3. Check to see if there are any obstacles in tange
 
 #### LiDAR is seeing floor/ceiling
 
@@ -182,7 +196,9 @@ Adjust the zSensitivity variable, which determines how high above and below the 
 
 Similarly the ySensitivity can be adjusted if the sections are too big/small
 
-### RCLPY Issues
+### Import Issues
+
+#### Running into error when importing rclpy
 
 1. Check that ROS2 Humble is properly installed
 2. Check that ROS2 Humble is properly sourced
@@ -191,14 +207,28 @@ Similarly the ySensitivity can be adjusted if the sections are too big/small
 
 #### Not reading any data from ultrasonic sensors
 
-Pins possibly not configured
+**Possibility 1: Pins not configured correctly**
 
 1. Run `sudo /opt/nvidia/jetson-io/jetson-io.py`
 2. Check to see that the pins connected to the trig and echo parts of the ultrasonic are set to "gpio"
 3. Update pins that are set incorrectly
 4. Save and reboot
 
-Wrong pins selected
+**Possibility 2: Wrong pins selected**
 
 1. Check the **GPIO Setup** section in the code
 2. Ensure that the trig and echo pin settings are correct
+
+#### GPIO is giving a warning when imported
+
+If using an official Jetson device, even if there's a warning given the code should still function properly. If it isn't reinstalling Jetson-io should help.
+
+### Movement Issues
+
+#### Turning too little/too much when moving to section
+
+It's possible that the robot will move too much or too little based on things like the status of the wheels, motors being jammed, etc.
+
+Small differences can lead to the turn being too much or too little.
+
+Adjust the `turn()` function accordingly, editing the length of the `time.sleep()` within it to customize how much the robot turns. Small inconsistencies shouldn't be too problematic though due to the anti drifting measures put in place. Editing the function to make use of the IMU can allow for much greater accuracy but I couldn't personally get it to work on the UGV01 that I used.
