@@ -20,6 +20,7 @@
 4. [Troubleshooting](#troubleshooting)
     <br>&nbsp;&nbsp;4.1. [LiDAR Issues](#lidar-issues)
     <br>&nbsp;&nbsp;4.2. [RCLPY Issues](#rclpy-issues)
+    <br>&nbsp;&nbsp;4.3. [GPIO Issues](#gpio-issues)
 
 ## Purpose
 
@@ -185,3 +186,19 @@ Similarly the ySensitivity can be adjusted if the sections are too big/small
 
 1. Check that ROS2 Humble is properly installed
 2. Check that ROS2 Humble is properly sourced
+
+### GPIO Issues
+
+#### Not reading any data from ultrasonic sensors
+
+Pins possibly not configured
+
+1. Run `sudo /opt/nvidia/jetson-io/jetson-io.py`
+2. Check to see that the pins connected to the trig and echo parts of the ultrasonic are set to "gpio"
+3. Update pins that are set incorrectly
+4. Save and reboot
+
+Wrong pins selected
+
+1. Check the **GPIO Setup** section in the code
+2. Ensure that the trig and echo pin settings are correct
